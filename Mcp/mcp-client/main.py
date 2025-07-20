@@ -165,31 +165,72 @@ class ChatSession:
         返回值：str，处理后的结果
         """
         try:
-            # 尝试移除可能的markdown格式
-            if llm_response.startswith('```json'):
-                llm_response = llm_response.strip('```json').strip('```').strip()
+            logger.info(f"🔍 处理LLM响应: {llm_response[:100]}...")
             
-            tool_call = json.loads(llm_response)
+            # 清理响应内容
+            cleaned_response = llm_response.strip()
+            
+            # 移除markdown格式
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response.strip('```json').strip('```').strip()
+                logger.info("✂️ 已移除markdown格式")
+            
+            # 移除可能的XML标记和多余内容
+            if '</tool_call>' in cleaned_response:
+                # 提取JSON部分，去掉</tool_call>标记
+                cleaned_response = cleaned_response.split('</tool_call>')[0].strip()
+                logger.info("✂️ 已移除tool_call标记")
+            
+            # 查找JSON部分 - 从第一个{开始到最后一个}结束
+            start_idx = cleaned_response.find('{')
+            end_idx = cleaned_response.rfind('}')
+            
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                json_part = cleaned_response[start_idx:end_idx+1]
+                logger.info(f"✂️ 提取JSON部分: {json_part}")
+            else:
+                json_part = cleaned_response
+            
+            tool_call = json.loads(json_part)
+            logger.info(f"✅ JSON解析成功: {tool_call}")
+            
             if "tool" in tool_call and "arguments" in tool_call:
                 # 获取可用工具列表
                 tools = await self.mcp_client.list_tools()
                 tool_names = [tool.get('name') for tool in tools]
+                logger.info(f"🔧 可用工具: {tool_names}")
+                logger.info(f"🎯 请求工具: {tool_call['tool']}")
                 
                 if tool_call["tool"] in tool_names:
                     try:
+                        logger.info(f"⚡ 开始执行工具: {tool_call['tool']} 参数: {tool_call['arguments']}")
+                        
                         # 执行工具调用
                         result = await self.mcp_client.execute_tool(
                             tool_call["tool"], tool_call["arguments"]
                         )
-                        return f"工具执行结果: {result}"
+                        
+                        logger.info(f"✅ 工具执行成功: {result}")
+                        final_result = f"工具执行结果: {result}"
+                        print(f"🔧 {final_result}")  # 立即打印结果
+                        return final_result
+                        
                     except Exception as e:
                         error_msg = f"工具执行错误: {str(e)}"
                         logger.error(error_msg)
+                        print(f"❌ {error_msg}")  # 立即打印错误
                         return error_msg
-                return f"未找到工具: {tool_call['tool']}"
+                        
+                error_msg = f"未找到工具: {tool_call['tool']} (可用: {tool_names})"
+                logger.warning(error_msg)
+                print(f"⚠️ {error_msg}")  # 立即打印警告
+                return error_msg
+                
+            logger.info("📝 非工具调用，返回原始响应")
             return llm_response
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             # 如果不是JSON格式，直接返回原始响应
+            logger.info(f"📝 非JSON格式响应，直接返回: {str(e)}")
             return llm_response
 
     async def start(self, system_message: str) -> None:
