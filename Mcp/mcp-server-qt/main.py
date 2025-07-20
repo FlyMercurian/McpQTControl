@@ -285,5 +285,6 @@ if __name__ == "__main__":
         
         logger.info("📡 MCP服务器已准备就绪，等待Cursor连接...")
         
-        # 启动MCP服务器 (FastMCP会自动处理stdin/stdout)
-        mcp.run()
+        # 启动MCP服务器 - SSE模式，支持HTTP客户端连接
+        logger.info("🌐 启动SSE模式MCP服务器...")
+        mcp.run(transport="sse")
