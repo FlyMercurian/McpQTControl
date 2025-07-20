@@ -4,14 +4,28 @@
 """
 
 import os
+import sys
 import asyncio
 import logging
 from pathlib import Path
 from typing import Optional
 
+# 添加MCP客户端路径到Python路径
+current_dir = Path(__file__).parent
+mcp_client_dir = current_dir.parent / "Mcp" / "mcp-client"
+sys.path.insert(0, str(mcp_client_dir))
+
+# 导入MCP客户端模块
 from main import ChatSession, LLMClient, MCPClient
-from voice_input import VoiceRecorder, KeyboardVoiceInput, AUDIO_AVAILABLE
-from speech_recognizer import SpeechRecognizer, VoiceCommandProcessor, VOICE_API_AVAILABLE
+
+# 导入本地语音模块
+try:
+    from .voice_input import VoiceRecorder, KeyboardVoiceInput, AUDIO_AVAILABLE
+    from .speech_recognizer import SpeechRecognizer, VoiceCommandProcessor, VOICE_API_AVAILABLE
+except ImportError:
+    # 直接运行时的备用导入
+    from voice_input import VoiceRecorder, KeyboardVoiceInput, AUDIO_AVAILABLE
+    from speech_recognizer import SpeechRecognizer, VoiceCommandProcessor, VOICE_API_AVAILABLE
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +117,7 @@ class VoiceChatSession(ChatSession):
         if self.voice_enabled:
             # 语音+文字混合模式
             print(f"\n{prompt}> ", end="")
-            print("💬 输入方式：直接输入文字 或 按 [V键] 语音输入（按一次开始，再按一次结束）")
+            print("输入方式：直接输入文字 或 按 [V键] 语音输入（按一次开始，再按一次结束）")
             
             # 尝试语音输入
             audio_file = self.voice_input.wait_for_voice_input()
@@ -277,7 +291,7 @@ class VoiceChatSession(ChatSession):
 
 def test_voice_chat():
     """测试语音聊天功能"""
-    print("🎙️ 语音聊天测试")
+    print("语音聊天测试")
     print("=" * 40)
     
     try:
@@ -299,16 +313,16 @@ def test_voice_chat():
         voice_session = VoiceChatSession(llm_client, mcp_client, voice_enabled=True)
         
         if voice_session.voice_enabled:
-            print("✅ 语音聊天会话初始化成功")
-            print("✅ 语音组件可用")
+            print("语音聊天会话初始化成功")
+            print("语音组件可用")
         else:
-            print("⚠️ 语音功能不可用，将使用文字模式")
+            print("语音功能不可用，将使用文字模式")
             
         # 清理资源
         asyncio.run(voice_session.cleanup())
         
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"测试失败: {e}")
 
 
 if __name__ == "__main__":

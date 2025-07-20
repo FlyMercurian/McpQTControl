@@ -47,8 +47,9 @@ class VoiceRecorder:
         if not AUDIO_AVAILABLE:
             raise RuntimeError("sounddevice未安装，无法使用语音功能")
             
-        # 创建临时目录存放录音文件
-        self.temp_dir = Path("temp_audio")
+        # 创建临时目录存放录音文件 - 在voice目录下
+        temp_dir_name = os.getenv('TEMP_AUDIO_DIR', 'temp_audio')
+        self.temp_dir = Path(__file__).parent / temp_dir_name
         self.temp_dir.mkdir(exist_ok=True)
     
     def _audio_callback(self, indata, frames, time, status):
@@ -227,11 +228,11 @@ class KeyboardVoiceInput:
         返回值：Optional[str]，录音文件路径，如果取消则返回None
         """
         if not AUDIO_AVAILABLE:
-            print("❌ 语音功能不可用，请安装 sounddevice 和 numpy")
+            print("语音功能不可用，请安装 sounddevice 和 numpy")
             return None
             
         print(f"🎤 {prompt}")
-        print("💡 新操作方式：按V键开始→录音中→再按V键结束；ESC取消；回车跳过")
+        print("操作方式：按V键开始→录音中→再按V键结束；ESC取消；回车跳过")
         
         if sys.platform == 'win32':
             return self._windows_voice_input()
@@ -253,11 +254,11 @@ class KeyboardVoiceInput:
                     if recording_state:
                         # 如果正在录音，停止录音
                         self.recorder.stop_recording()
-                        print("\n🚫 录音已取消")
+                        print("\n录音已取消")
                         recording_state = False
                         continue
                     else:
-                        print("\n🚫 语音输入已取消")
+                        print("\n语音输入已取消")
                         return None
                         
                 elif key == b'\r':  # Enter
@@ -266,14 +267,14 @@ class KeyboardVoiceInput:
                         duration = self.recorder.stop_recording()
                         if duration > 0.5:
                             filepath = self.recorder.save_recording()
-                            print(f"\n✅ 录音完成 ({duration:.2f}秒)")
+                            print(f"\n录音完成 ({duration:.2f}秒)")
                             return filepath
                         else:
-                            print("\n⚠️ 录音时间太短，已忽略")
+                            print("\n录音时间太短，已忽略")
                             recording_state = False
                             continue
                     else:
-                        print("\n⏭️ 跳过语音输入")
+                        print("\n跳过语音输入")
                         return None
                         
                 elif key.lower() == self.trigger_key.encode():
@@ -283,16 +284,16 @@ class KeyboardVoiceInput:
                             print("\n🎤 开始录音... (再按V键或回车结束，ESC取消)")
                             recording_state = True
                         else:
-                            print("\n❌ 录音启动失败")
+                            print("\n录音启动失败")
                     else:
                         # V键再次按下，结束录音
                         duration = self.recorder.stop_recording()
                         if duration > 0.5:
                             filepath = self.recorder.save_recording()
-                            print(f"\n✅ 录音完成 ({duration:.2f}秒)")
+                            print(f"\n录音完成 ({duration:.2f}秒)")
                             return filepath
                         else:
-                            print("\n⚠️ 录音时间太短，已忽略")
+                            print("\n录音时间太短，已忽略")
                             recording_state = False
                             continue
             
@@ -304,7 +305,7 @@ class KeyboardVoiceInput:
                 if current_duration >= self.recorder.max_duration:
                     duration = self.recorder.stop_recording()
                     filepath = self.recorder.save_recording()
-                    print(f"\n⏰ 达到最大录音时长 ({duration:.2f}秒)")
+                    print(f"\n达到最大录音时长 ({duration:.2f}秒)")
                     return filepath
                 
                 # 显示录音进度
@@ -316,13 +317,13 @@ class KeyboardVoiceInput:
     
     def _unix_voice_input(self) -> Optional[str]:
         """Unix/Linux/Mac平台的语音输入处理"""
-        print("⚠️ Unix平台暂不支持按键录音，请使用文字输入模式")
+        print("Unix平台暂不支持按键录音，请使用文字输入模式")
         return None
 
 
 def test_voice_input():
     """测试语音输入功能"""
-    print("🎤 语音输入测试")
+    print("语音输入测试")
     print("="*40)
     
     try:

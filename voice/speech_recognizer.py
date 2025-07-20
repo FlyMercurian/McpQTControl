@@ -9,15 +9,18 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-# 导入Voice目录下的语音识别模块
-sys.path.append(str(Path(__file__).parent.parent.parent / "Voice"))
-
+# 导入同目录下的语音识别模块
 try:
-    from voice2text import audio_to_text_from_file, create_voice_client
+    from .voice2text import audio_to_text_from_file, create_voice_client
     VOICE_API_AVAILABLE = True
-except ImportError as e:
-    VOICE_API_AVAILABLE = False
-    logging.warning(f"语音识别API不可用: {e}")
+except ImportError:
+    try:
+        # 如果相对导入失败，尝试直接导入
+        from voice2text import audio_to_text_from_file, create_voice_client
+        VOICE_API_AVAILABLE = True
+    except ImportError as e:
+        VOICE_API_AVAILABLE = False
+        logging.warning(f"语音识别API不可用: {e}")
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +43,7 @@ class SpeechRecognizer:
         
         # 检查API可用性
         if not VOICE_API_AVAILABLE:
-            raise RuntimeError("语音识别API不可用，请检查Voice/voice2text.py模块")
+            raise RuntimeError("语音识别API不可用，请检查voice2text.py模块")
             
         # 检查API密钥
         if not os.getenv("DASHSCOPE_API_KEY"):
@@ -239,7 +242,7 @@ class VoiceCommandProcessor:
 
 def test_speech_recognition():
     """测试语音识别功能"""
-    print("🎙️ 语音识别测试")
+    print("语音识别测试")
     print("="*40)
     
     try:
@@ -247,7 +250,7 @@ def test_speech_recognition():
         recognizer = SpeechRecognizer()
         processor = VoiceCommandProcessor(recognizer)
         
-        print("✅ 语音识别器创建成功")
+        print("语音识别器创建成功")
         
         # 检查是否有测试音频文件
         test_audio_dir = Path("temp_audio")
@@ -255,20 +258,20 @@ def test_speech_recognition():
             audio_files = list(test_audio_dir.glob("*.wav"))
             if audio_files:
                 test_file = audio_files[0]
-                print(f"📁 测试文件: {test_file}")
+                print(f"测试文件: {test_file}")
                 
                 result = recognizer.recognize_from_file(str(test_file))
-                print(f"🔤 识别结果: {result}")
+                print(f"识别结果: {result}")
                 
                 processed = processor.process_voice_command(str(test_file))
-                print(f"⚙️ 处理后: {processed}")
+                print(f"处理后: {processed}")
             else:
-                print("⚠️ 没有找到测试音频文件")
+                print("没有找到测试音频文件")
         else:
-            print("⚠️ 临时音频目录不存在")
+            print("临时音频目录不存在")
             
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"测试失败: {e}")
 
 
 if __name__ == "__main__":

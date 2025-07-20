@@ -11,12 +11,20 @@ import os
 import sys
 from pathlib import Path
 
-# 添加当前目录到路径，确保可以导入模块
+# 添加当前目录和MCP客户端目录到Python路径
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
+# 添加MCP客户端路径
+mcp_client_dir = current_dir.parent / "Mcp" / "mcp-client"  
+sys.path.insert(0, str(mcp_client_dir))
+
 from dotenv import load_dotenv
-from main import MCPClient, LLMClient, load_env_config
+
+# 导入MCP客户端模块
+from main import MCPClient, LLMClient
+
+# 导入本地语音模块
 from voice_chat_session import VoiceChatSession
 
 # 配置日志
@@ -52,8 +60,7 @@ def check_voice_dependencies():
             errors.append("未设置DASHSCOPE_API_KEY环境变量")
         
         # 检查Voice模块
-        voice_dir = Path(__file__).parent.parent.parent / "Voice"
-        voice_file = voice_dir / "voice2text.py"
+        voice_file = current_dir / "voice2text.py"
         if not voice_file.exists():
             voice_api_available = False
             errors.append(f"语音识别模块不存在: {voice_file}")
@@ -114,6 +121,27 @@ def get_voice_config():
         'max_recording_duration': int(os.getenv('MAX_RECORDING_DURATION', '30')),
         'auto_confirm_voice': os.getenv('AUTO_CONFIRM_VOICE', 'false').lower() == 'true',
     }
+
+
+def load_env_config():
+    """
+    函数名称：load_env_config
+    功能描述：加载环境变量配置（优先使用voice目录的配置文件）
+    参数说明：无
+    返回值：无
+    """
+    # 优先加载voice目录的配置文件
+    voice_config_file = current_dir / "config.env"
+    mcp_config_file = mcp_client_dir / "config.env"
+    
+    if voice_config_file.exists():
+        load_dotenv(voice_config_file)
+        logger.info(f"从 {voice_config_file} 加载环境变量")
+    elif mcp_config_file.exists():
+        load_dotenv(mcp_config_file)
+        logger.info(f"从 {mcp_config_file} 加载环境变量")
+    else:
+        logger.warning("未找到配置文件，使用系统环境变量")
 
 
 async def main():
@@ -248,8 +276,8 @@ async def main():
         elif "语音" in str(e) or "voice" in str(e).lower():
             print("\n💡 语音功能问题解决方案:")
             print("   1. 安装音频依赖: pip install sounddevice numpy")
-            print("   2. 检查Voice/voice2text.py模块")
-            print("   3. 可以使用文字模式: python main.py")
+            print("   2. 检查voice2text.py模块")
+            print("   3. 可以使用文字模式: cd ../Mcp/mcp-client && python main.py")
             
     finally:
         # 确保资源被清理
