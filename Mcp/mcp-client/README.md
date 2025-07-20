@@ -1,17 +1,27 @@
 # QT应用控制 MCP 客户端
 
-这是一个基于 fastmcp 的 MCP 客户端，用于控制 QT 应用程序。
+基于 FastMCP 的智能 QT 应用控制系统，通过自然语言实现 QT 应用程序的自动化控制。
 
-## 功能特性
+## 🏗️ 系统架构
 
-- 🚀 异步 MCP 客户端，支持高并发操作
-- 🤖 集成大语言模型，支持自然语言控制
-- 🎯 专为 QT 应用控制优化的系统提示词
-- 📝 完整的错误处理和日志记录
-- 🔧 支持多种 QT 操作：登录、测试按钮、状态查询
-- 🛠️ 支持多个 LLM 提供商：阿里云、OpenAI、智谱AI、Deepseek
-- ⚙️ 灵活的配置方式：环境文件或系统变量
-- 🎭 智能启动脚本，支持配置向导和环境检查
+```
+用户输入 → LLM理解 → MCP客户端 → MCP服务器(SSE) → Qt应用(TCP:8088)
+```
+
+- **MCP服务器**: 端口8000，使用SSE传输模式
+- **Qt应用**: 端口8088，TCP JSON-RPC通信
+- **传输方式**: Server-Sent Events (SSE) 持续连接
+
+## ✨ 功能特性
+
+- 🚀 **异步架构**: FastMCP客户端，支持SSE流式通信
+- 🤖 **智能理解**: 集成大语言模型，自然语言转工具调用
+- 🎯 **专业优化**: 专为QT应用控制设计的系统提示词
+- 📝 **全面日志**: 完整的错误处理和调试信息
+- 🔧 **丰富操作**: 登录认证、按钮操作、状态查询等
+- 🛠️ **多平台LLM**: 阿里云、OpenAI、智谱AI、Deepseek
+- ⚙️ **灵活配置**: 环境文件或系统变量两种方式
+- 🎭 **智能启动**: 环境检查、配置向导、连接测试
 
 ## 安装依赖
 
@@ -38,7 +48,7 @@ LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 # LLM_BASE_URL=https://api.openai.com/v1
 
 # MCP服务器配置
-MCP_SERVER_URL=http://localhost:8080
+MCP_SERVER_URL=http://localhost:8000
 ```
 
 ### 方式二：使用系统环境变量
@@ -48,7 +58,7 @@ MCP_SERVER_URL=http://localhost:8080
 export DASHSCOPE_API_KEY="your_dashscope_api_key"
 export LLM_MODEL_NAME="qwen-plus-latest"
 export LLM_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
-export MCP_SERVER_URL="http://localhost:8080"
+export MCP_SERVER_URL="http://localhost:8000"
 ```
 
 ```powershell
@@ -56,7 +66,7 @@ export MCP_SERVER_URL="http://localhost:8080"
 $env:DASHSCOPE_API_KEY="your_dashscope_api_key"
 $env:LLM_MODEL_NAME="qwen-plus-latest" 
 $env:LLM_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
-$env:MCP_SERVER_URL="http://localhost:8080"
+$env:MCP_SERVER_URL="http://localhost:8000"
 ```
 
 ### 支持的LLM提供商
@@ -68,38 +78,65 @@ $env:MCP_SERVER_URL="http://localhost:8080"
 | 智谱AI | `ZHIPUAI_API_KEY` | `glm-4` | `https://open.bigmodel.cn/api/paas/v4` |
 | Deepseek | `DEEPSEEK_API_KEY` | `deepseek-chat` | `https://api.deepseek.com/v1` |
 
-## 使用方法
+## ⚡ 快速开始
 
-1. **启动 MCP 服务器**（确保你的 QT 控制服务正在运行）
+```bash
+# 1. 安装依赖
+pip install -r requirements.txt
 
-2. **运行 MCP 客户端**：
+# 2. 启动MCP服务器（新终端）
+cd ../mcp-server-qt && python main.py
 
-   **一键启动**（推荐）：
-   ```bash
-   # Windows
-   run.bat
-   
-   # Linux/Mac
-   ./run.sh
-   ```
-   
-   **使用启动脚本**（带环境检查）：
-   ```bash
-   python start.py
-   ```
-   
-   **直接启动**：
-   ```bash
-   python main.py
-   ```
+# 3. 快速启动客户端
+python start_simple.py
 
-3. **首次运行配置向导**：
-   - 启动脚本会自动检查依赖和配置
-   - 如果未配置，会引导你完成配置设置
-   - 支持选择不同的 LLM 提供商
-   - 可选择保存配置到 `config.env` 文件
+# 4. 开始对话
+用户: 登录账号wyx，密码124
+助手: 登录成功！用户 wyx 已成功登录系统
+```
 
-4. **使用自然语言控制 QT 应用**：
+## 🚀 使用方法
+
+### 1️⃣ 启动MCP服务器
+```bash
+cd ../mcp-server-qt
+python main.py
+```
+> 🔵 服务器将在端口8000启动SSE模式，等待客户端连接
+
+### 2️⃣ 启动客户端
+
+**🌟 方式一：完整启动（推荐新用户）**
+```bash
+python start.py
+```
+- ✅ 自动检查依赖和配置
+- ✅ 测试MCP服务器和Qt应用连接  
+- ✅ 配置向导，引导首次设置
+- ✅ 详细的启动日志和错误诊断
+
+**⚡ 方式二：快速启动（推荐熟练用户）** 
+```bash
+python start_simple.py  
+```
+- ⚡ 跳过连接测试，直接启动
+- ⚡ 适用于已知服务器正常运行
+- ⚡ 更快的启动速度，减少等待
+
+**🔧 方式三：直接启动（调试模式）**
+```bash
+python main.py
+```
+- 🔧 最小化启动，不含任何检查
+- 🔧 适用于开发调试和问题排查
+
+### 3️⃣ 首次配置向导
+- 启动脚本会自动检查依赖和配置
+- 如果未配置，会引导你完成设置
+- 支持选择不同的LLM提供商
+- 可选保存配置到`config.env`文件
+
+### 4️⃣ 开始控制Qt应用
 
 ### 支持的指令示例：
 
@@ -170,22 +207,61 @@ QT控制助手退出
 3. 网络连接正常，能够访问阿里云 API
 4. QT 应用程序正在运行并可接受控制
 
-## 故障排除
+## 🔧 故障排除
 
-### 连接问题
+### ⚠️ SSE连接超时（正常现象）
+```
+❌ MCP服务器连接失败: ReadTimeout
+测试SSE端点超时
+```
+**重要说明**: 这是**正常现象**！SSE端点是持续连接，用普通HTTP测试会超时。
+
+**解决方案**: 
+- 使用`python start_simple.py`跳过连接测试
+- 检查MCP服务器日志确认服务器正在运行
+- 基础连接404响应表示服务器正常
+
+### 🔌 MCP服务器连接问题
 ```
 Error: Not connected to MCP server
+ConnectionRefusedError
 ```
-**解决方案**: 检查 MCP 服务器是否运行，端口是否正确
+**解决方案**: 
+1. 确保MCP服务器正在运行: `cd ../mcp-server-qt && python main.py`
+2. 检查端口8000是否被占用: `netstat -an | grep 8000`
+3. 确认`MCP_SERVER_URL=http://localhost:8000`
 
-### API 密钥问题
+### 🔑 API密钥问题
 ```
-请设置环境变量 DASHSCOPE_API_KEY
+❌ 请在config.env文件中设置API密钥
 ```
-**解决方案**: 设置正确的阿里云 API 密钥
+**解决方案**: 
+- 编辑`config.env`设置正确的API密钥
+- 支持的密钥：`DASHSCOPE_API_KEY`, `OPENAI_API_KEY`, `ZHIPUAI_API_KEY`, `DEEPSEEK_API_KEY`
 
-### 工具执行失败
+### 🎯 Qt应用连接失败
+```
+❌ Qt应用连接被拒绝 (端口8088)
+```
+**解决方案**: 
+1. 确保Qt应用正在运行并监听端口8088
+2. 检查防火墙设置
+3. 验证TCP端口: `telnet localhost 8088`
+
+### ⚙️ 工具执行失败
 ```
 工具执行错误: ...
 ```
-**解决方案**: 检查 QT 应用程序状态，查看服务器日志 
+**解决方案**: 
+1. 检查Qt应用程序状态
+2. 查看MCP服务器日志
+3. 验证工具参数格式正确
+
+### 🌐 网络连接问题
+```
+Error connecting to LLM API
+```
+**解决方案**: 
+1. 检查网络连接
+2. 验证API地址可访问
+3. 确认API密钥有效且有余额 
