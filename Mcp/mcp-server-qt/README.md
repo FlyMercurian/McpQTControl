@@ -82,17 +82,13 @@ INFO:__main__:✅ Qt应用连接正常 (JSON-RPC格式)
 
 2. **添加MCP服务器配置**
    ```json
-   {
-     "cursor.mcpServers": {
-       "qt-control": {
-         "command": "python",
-         "args": ["D:\\AIPro\\MCPControl\\McpQTControl\\App\\mcp-server-qt\\main.py"],
-         "env": {
-           "PYTHONIOENCODING": "utf-8"
-         }
-       }
-     }
-   }
+    "qt-control": {
+      "command": "python",
+      "args": ["D:\\AIPro\\MCPControl\\McpQTControl\\Mcp\\mcp-server-qt\\main.py"],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
    ```
 
 3. **保存并重启Cursor**
