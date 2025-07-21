@@ -275,5 +275,12 @@ INFO:mcp_client:执行结果: 登录成功
 
 **整个系统已测试完毕，可以投入实际使用！** 🎉
 
-个人微信：
-![二维码](./Doc/img/qr_code.jpg)
+## 交流
+
+若本项目对您有帮助，欢迎 Star ⭐️ 或 Fork。 有任何问题或建议，欢迎提交 Issue 或 PR。
+
+也欢迎加微信，一起交流学习。
+
+<p float="left">
+  <img src="doc/img/qr_code.jpg" width="400" />
+</p>
