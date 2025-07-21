@@ -1,7 +1,26 @@
-好的！让我全面总结一下整个语音控制QT应用的完整方案架构。
-Ran tool
+## AI控制QT应用程序完整方案
 
-## 🎯 语音控制QT应用完整方案总结
+注：功能还在持续优化中。。。
+
+## 设计框架图
+整体框架图：
+![整体框架图](./Doc/img/design.png)
+
+数据设计图：
+![数据设计图](./Doc/img/data_design.png)
+
+
+## 实际效果
+登录效果：
+![登录效果](./Doc/img/function_login.jpg)
+
+测试按钮效果：
+![测试按钮效果](./Doc/img/function_testbutton.jpg)
+
+获取状态效果：
+![获取状态效果](./Doc/img/function_getstate.jpg)
+
+
 
 ### 📊 **整体架构概述**
 
@@ -255,3 +274,6 @@ INFO:mcp_client:执行结果: 登录成功
 - **📈 易于扩展**: 模块化设计，新功能易于添加
 
 **整个系统已测试完毕，可以投入实际使用！** 🎉
+
+个人微信：
+![二维码](./Doc/img/qr_code.jpg)
