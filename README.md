@@ -282,5 +282,5 @@ INFO:mcp_client:执行结果: 登录成功
 也欢迎加微信，一起交流学习。
 
 <p float="left">
-  <img src="doc/img/qr_code.jpg" width="400" />
+  <img src="Doc/img/qr_code.jpg" width="400" />
 </p>
